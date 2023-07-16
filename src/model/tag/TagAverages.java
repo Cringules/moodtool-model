@@ -4,13 +4,15 @@ import java.util.List;
 import model.mood.Mood;
 
 public class TagAverages {
-  public Mood GetTagCurrentAverage(String tag, List<String> data) {
-    return null;
-  }
+  public Mood GetTagCurrentAverage(String tag) {
+    int angryAfraid = 0;
+    int cheerfulDepressed = 0;
+    int willfulYielding = 0;
+    int pressuredLonely = 0;
 
-  /*
-  public Mood GetTagNextAverage(String tag, List<String> data) {
-    return null;
+    // запросы чтобы достать средние всех характеристик
+    // как хранить тэги в бд?
+
+    return new Mood(angryAfraid, cheerfulDepressed, willfulYielding, pressuredLonely);
   }
-  */
 }
