@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import ru.cringules.moodtool.backend.data.MoodEntry;
 
 public class PredictModel {
 
@@ -58,15 +59,24 @@ public class PredictModel {
     // !!!!
     TagAverages tagAverages = new TagAverages(moodEntryRepository);
 
+    List<MoodEntry> mood = moodEntryRepository.findAll();
+    int n = tags.size();
+
     for (String tag : tags) {
-      Mood mood = tagAverages.GetTagCurrentAverage(tag);
-      tagAngryAfraid += mood.angryAfraid();
-      tagCheerfulDepressed += mood.cheerfulDepressed();
-      tagWillfulYielding += mood.willfulYielding();
-      tagPressuredLonely += mood.pressuredLonely();
+      if (mood.stream().filter(m -> m.getTags().contains(tag)).toList().isEmpty()) {
+        n -= 1;
+        continue;
+      }
+      Mood curMood = tagAverages.GetTagCurrentAverage(tag);
+      tagAngryAfraid += curMood.angryAfraid();
+      tagCheerfulDepressed += curMood.cheerfulDepressed();
+      tagWillfulYielding += curMood.willfulYielding();
+      tagPressuredLonely += curMood.pressuredLonely();
     }
 
-    int n = tags.size();
+    if (n < 1) {
+      return new Mood((int) timeAngryAfraid, (int) timeCheerfulDepressed, (int) timeWillfulYielding, (int) timePressuredLonely);
+    }
 
     tagAngryAfraid /= n;
     tagCheerfulDepressed /= n;
