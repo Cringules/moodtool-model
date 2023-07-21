@@ -9,21 +9,30 @@ import java.util.List;
 public class PredictModel {
 
   public Mood PredictMood(Instant curDate, List<String> tags) {
-    int timeAngryAfraid = 0;
-    int timeCheerfulDepressed = 0;
-    int timeWillfulYielding = 0;
-    int timePressuredLonely = 0;
+    double timeAngryAfraid = 0;
+    double timeCheerfulDepressed = 0;
+    double timeWillfulYielding = 0;
+    double timePressuredLonely = 0;
 
     Timestamp date = Timestamp.from(curDate);
 
     // !!!!
     IntervalAverages intervalAverages = new IntervalAverages(moodEntryRepository);
 
+    int dayPeriod = 3;
+    if (date.getHours() > 4 && date.getHours() < 12) {
+      dayPeriod = 0;
+    } else if (date.getHours() > 11 && date.getHours() < 18) {
+      dayPeriod = 1;
+    } else if (date.getHours() > 17 && date.getHours() < 23) {
+      dayPeriod = 2;
+    }
+
     List<Mood> timeAverages = new ArrayList<Mood>(Arrays.asList(
         intervalAverages.GetHourAverage(date.getHours()),
+        intervalAverages.GetDayPeriodAverage(dayPeriod),
         intervalAverages.GetWeekdayAverage(date.getDay()),
-        intervalAverages.GetMonthAverage(date.getMonth()),
-        intervalAverages.GetWeekdayAverage(date.getDay())));
+        intervalAverages.GetMonthAverage(date.getMonth())));
 
     for (Mood mood : timeAverages) {
       timeAngryAfraid += mood.angryAfraid();
@@ -36,6 +45,10 @@ public class PredictModel {
     timeCheerfulDepressed /= 4;
     timeWillfulYielding /= 4;
     timePressuredLonely /= 4;
+
+    if (tags.isEmpty()) {
+      return new Mood((int) timeAngryAfraid, (int) timeCheerfulDepressed, (int) timeWillfulYielding, (int) timePressuredLonely);
+    }
 
     int tagAngryAfraid = 0;
     int tagCheerfulDepressed = 0;
@@ -60,9 +73,9 @@ public class PredictModel {
     tagWillfulYielding /= n;
     tagPressuredLonely /= n;
 
-    return new Mood((timeAngryAfraid + tagAngryAfraid) / 2,
-        (timeCheerfulDepressed + tagCheerfulDepressed) / 2,
-        (timeWillfulYielding + tagWillfulYielding) / 2,
-        (timePressuredLonely + tagPressuredLonely) / 2);
+    return new Mood((int) (timeAngryAfraid + tagAngryAfraid) / 2,
+        (int) (timeCheerfulDepressed + tagCheerfulDepressed) / 2,
+        (int) (timeWillfulYielding + tagWillfulYielding) / 2,
+        (int) (timePressuredLonely + tagPressuredLonely) / 2);
   }
 }
